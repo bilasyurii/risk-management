@@ -72,6 +72,9 @@
     </ApplicationDefinition>
     <Compile Include="Base\Mapping.cs" />
     <Compile Include="Controls\AudioImage.cs" />
+    <Compile Include="Controls\ProjectInfo.xaml.cs">
+      <DependentUpon>ProjectInfo.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converters\DatagridDigitsAfterDotConverter.cs" />
     <Compile Include="Converters\EqualityComparisonConverter.cs" />
     <Compile Include="Converters\RiskToListItemConverter.cs" />
@@ -100,6 +103,10 @@
     <Compile Include="Views\StartUpWindow.xaml.cs">
       <DependentUpon>StartUpWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="Controls\ProjectInfo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\About.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

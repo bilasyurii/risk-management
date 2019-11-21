@@ -369,8 +369,7 @@ namespace RiskManagement.UI
                 else if(window.resultTabs.SelectedIndex == 3)
                 {
                     model.updateProjectInfoTable();
-                    window.projectDataGrid.ItemsSource = model.ProjectInfoTable;
-                    window.projectDataGrid.Items.Refresh();
+                    window.projectDataGrid.DataContext = model.ProjectInfoTable;//TODO refresh
                 }
             }
         }

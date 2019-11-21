@@ -5,7 +5,7 @@
     xmlns:Converter="clr-namespace:RiskManagement.UI.Converters"
     xmlns:Selector="clr-namespace:RiskManagement.UI.TemplateSelectors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:local="clr-namespace:RiskManagement.UI"
+    xmlns:control="clr-namespace:RiskManagement.UI.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     Title="Risk Management Symphony"
@@ -904,7 +904,13 @@
                         Margin="-3,-2,3,0"
                         Header="Проект">
                         <Grid>
-                            <DataGrid
+                            <control:ProjectInfo
+                                x:Name="projectDataGrid"
+                                DataContext="{Binding Path=ProjectInfoTable}"
+                                Height="85"
+                                Margin="10,10,10,0"
+                                VerticalAlignment="Top"/>
+                            <!--<DataGrid
                                 Name="projectDataGrid"
                                 Height="85"
                                 Margin="10,10,10,0"
@@ -1120,7 +1126,7 @@
                                         <Setter Property="HorizontalContentAlignment" Value="Center" />
                                     </Style>
                                 </DataGrid.ColumnHeaderStyle>
-                            </DataGrid>
+                            </DataGrid>-->
                         </Grid>
                     </TabItem>
                 </TabControl>
