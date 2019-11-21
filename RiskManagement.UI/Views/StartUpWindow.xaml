@@ -1,0 +1,197 @@
+﻿<Window
+    x:Class="RiskManagement.UI.Views.StartUpWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:RiskManagement.UI.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="Проекти"
+    Width="450"
+    Height="500"
+    Closing="onClosing"
+    mc:Ignorable="d">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid
+            Name="ProjectCreationGrid"
+            Grid.RowSpan="4"
+            Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="50" />
+                <RowDefinition Height="30" />
+                <RowDefinition />
+                <RowDefinition Height="50" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="125" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="120" />
+            </Grid.ColumnDefinitions>
+            <DataGrid
+                Name="expertTable"
+                Grid.Row="4"
+                Grid.ColumnSpan="3"
+                Margin="10"
+                AutoGenerateColumns="False"
+                CanUserAddRows="False"
+                CanUserDeleteRows="False"
+                CanUserReorderColumns="False"
+                CanUserResizeColumns="False"
+                CanUserResizeRows="False"
+                CanUserSortColumns="False"
+                ItemsSource="{Binding Path=Experts}"
+                SelectionMode="Single"
+                SelectionUnit="Cell">
+                <DataGrid.ColumnHeaderStyle>
+                    <Style TargetType="{x:Type DataGridColumnHeader}">
+                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        <Setter Property="ContentTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <TextBlock
+                                        Width="100"
+                                        Text="{Binding}"
+                                        TextWrapping="Wrap" />
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </DataGrid.ColumnHeaderStyle>
+                <DataGrid.Columns>
+                    <DataGridTextColumn
+                        Width="50"
+                        Binding="{Binding Path=Number, FallbackValue=0}"
+                        Header="Номер"
+                        IsReadOnly="True" />
+                    <DataGridTextColumn Binding="{Binding Path=ProbabilityCat1, FallbackValue=0, StringFormat={}{0:0.##}}" Header="Ймов. вагомість (технічні)" />
+                    <DataGridTextColumn Binding="{Binding Path=ProbabilityCat2, FallbackValue=0, StringFormat={}{0:0.##}}" Header="Ймов. вагомість (вартісні)" />
+                    <DataGridTextColumn Binding="{Binding Path=ProbabilityCat3, FallbackValue=0, StringFormat={}{0:0.##}}" Header="Ймов. вагомість (планові)" />
+                    <DataGridTextColumn Binding="{Binding Path=ProbabilityCat4, FallbackValue=0, StringFormat={}{0:0.##}}" Header="Ймов. вагомість (управління)" />
+                    <DataGridTextColumn Binding="{Binding Path=LossCat1, FallbackValue=0, StringFormat={}{0:0.##}}" Header="Збиткова вагомість (технічні)" />
+                    <DataGridTextColumn Binding="{Binding Path=LossCat2, FallbackValue=0, StringFormat={}{0:0.##}}" Header="Збиткова вагомість (вартісні)" />
+                    <DataGridTextColumn Binding="{Binding Path=LossCat3, FallbackValue=0, StringFormat={}{0:0.##}}" Header="Збиткова вагомість (планові)" />
+                    <DataGridTextColumn Binding="{Binding Path=LossCat4, FallbackValue=0, StringFormat={}{0:0.##}}" Header="Збиткова вагомість (управління)" />
+                </DataGrid.Columns>
+            </DataGrid>
+            <Border
+                Grid.Row="2"
+                Grid.ColumnSpan="2"
+                Margin="10"
+                BorderBrush="{x:Null}">
+                <TextBlock
+                    x:Name="textBlock"
+                    VerticalAlignment="Center"
+                    Text="{Binding Path=NewProjectFolder, TargetNullValue='Шлях не обрано...'}"
+                    TextTrimming="CharacterEllipsis"
+                    TextWrapping="Wrap" />
+            </Border>
+            <Button
+                x:Name="selectFolder"
+                Grid.Row="2"
+                Grid.Column="2"
+                Margin="10"
+                Click="selectFolderClicked"
+                Content="Обрати шлях" />
+            <Label
+                x:Name="label"
+                Margin="10,10,0,10"
+                Content="Назва:" />
+            <TextBox
+                x:Name="projectNameBox"
+                Grid.Column="1"
+                Grid.ColumnSpan="2"
+                Margin="10"
+                VerticalContentAlignment="Center"
+                AcceptsReturn="False"
+                Text="{Binding Path=ProjectName}"
+                TextChanged="projectNameChanged"
+                TextWrapping="NoWrap" />
+            <Label
+                x:Name="label1"
+                Grid.Row="1"
+                Margin="10,10,0,10"
+                Content="Вартість (тис. грн.):" />
+            <TextBox
+                x:Name="initialCostBox"
+                Grid.Row="1"
+                Grid.Column="1"
+                Grid.ColumnSpan="2"
+                Margin="10"
+                VerticalContentAlignment="Center"
+                AcceptsReturn="False"
+                Text="{Binding Path=InitialCost}"
+                TextChanged="initialCostChanged"
+                TextWrapping="NoWrap" />
+            <Button
+                x:Name="createProjectButton"
+                Grid.Row="5"
+                Grid.ColumnSpan="3"
+                MaxWidth="200"
+                Margin="10"
+                Click="finishProjectCreation"
+                Content="Створити проект"
+                IsEnabled="False" />
+            <Label
+                x:Name="label2"
+                Grid.Row="3"
+                Grid.ColumnSpan="3"
+                Margin="10,0"
+                Content="Експерти:" />
+        </Grid>
+        <Grid
+            Name="ProjectOpeningGrid"
+            Grid.RowSpan="4"
+            Visibility="Visible">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition Height="50" />
+            </Grid.RowDefinitions>
+            <ListBox
+                x:Name="ProjectsList"
+                Grid.ColumnSpan="3"
+                Margin="10,36,10,10"
+                ItemsSource="{Binding RecentFiles}"
+                SelectionChanged="ProjectsListSelectionChanged" />
+            <Label
+                x:Name="RecentProjectsLabel"
+                Grid.ColumnSpan="3"
+                Height="26"
+                Margin="10,10,10,0"
+                VerticalAlignment="Top"
+                Content="Попередні проекти:" />
+            <Button
+                x:Name="OpenRecentButton"
+                Grid.Row="1"
+                Margin="10"
+                Click="OpenRecentClicked"
+                Content="Відкрити вибраний"
+                IsEnabled="False" />
+            <Button
+                x:Name="CreateNewProjectButton"
+                Grid.Row="1"
+                Grid.Column="2"
+                Margin="10"
+                Click="CreateNewProjectClicked"
+                Content="Створити новий" />
+            <Button
+                x:Name="OpenProjectButton"
+                Grid.Row="1"
+                Grid.Column="1"
+                Margin="10"
+                Click="OpenProjectClicked"
+                Content="Відкрити..." />
+        </Grid>
+    </Grid>
+</Window>

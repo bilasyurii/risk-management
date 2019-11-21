@@ -1,0 +1,1158 @@
+﻿<Window
+    x:Class="RiskManagement.UI.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:Converter="clr-namespace:RiskManagement.UI.Converters"
+    xmlns:Selector="clr-namespace:RiskManagement.UI.TemplateSelectors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:RiskManagement.UI"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    Title="Risk Management Symphony"
+    Width="1046"
+    Height="550"
+    mc:Ignorable="d">
+    <Window.Resources>
+        <Converter:EqualityComparisonConverter x:Key="my:EqualityConverter" />
+        <Converter:RiskToListItemConverter x:Key="my:RiskToListItemConverter" />
+        <Style x:Key="datagridRightAlign" TargetType="{x:Type DataGridCell}">
+            <Setter Property="TextBlock.TextAlignment" Value="Right" />
+            <Setter Property="TextBlock.VerticalAlignment" Value="Bottom" />
+        </Style>
+        <Style x:Key="datagridLeftAlign" TargetType="{x:Type DataGridCell}">
+            <Setter Property="TextBlock.TextAlignment" Value="Left" />
+            <Setter Property="TextBlock.VerticalAlignment" Value="Bottom" />
+        </Style>
+        <Style x:Key="datagridBottomAlign" TargetType="{x:Type TextBlock}">
+            <Setter Property="TextAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+        </Style>
+        <Style x:Key="datagridCellBottomAlign" TargetType="{x:Type DataGridCell}">
+            <Setter Property="TextBlock.TextAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+        </Style>
+        <Style x:Key="solutionApproved" TargetType="{x:Type Label}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=CurrentRisk.Solution.SolutionID, Converter={StaticResource my:EqualityConverter}, ConverterParameter={x:Null}}" Value="True">
+                    <Setter Property="Visibility" Value="Hidden" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Storyboard x:Key="fadeOut">
+            <DoubleAnimation
+                BeginTime="0:0:0.0"
+                Storyboard.TargetProperty="Opacity"
+                From="1"
+                To="0"
+                Duration="0:0:1.0" />
+            <ObjectAnimationUsingKeyFrames BeginTime="0:0:1.0" Storyboard.TargetProperty="Visibility">
+                <DiscreteObjectKeyFrame KeyTime="0">
+                    <DiscreteObjectKeyFrame.Value>
+                        <Visibility>Hidden</Visibility>
+                    </DiscreteObjectKeyFrame.Value>
+                </DiscreteObjectKeyFrame>
+            </ObjectAnimationUsingKeyFrames>
+        </Storyboard>
+        <Selector:ColumnGroupTemplateSelector x:Key="CGTemplateSelector" />
+        <Selector:ColumnGroupWeightedTemplateSelector x:Key="CGWTemplateSelector" />
+        <Selector:ColumnGroupLossTemplateSelector x:Key="CGLTemplateSelector" />
+        <Selector:ColumnGroupLossWeightedTemplateSelector x:Key="CGLWTemplateSelector" />
+        <DataTemplate x:Key="textCGTemplate">
+            <TextBlock Text="{Binding Path=Guesses.HeaderText}" />
+        </DataTemplate>
+        <DataTemplate x:Key="textWeightedCGTemplate">
+            <TextBlock Text="{Binding Path=GuessesWeighted.HeaderText}" />
+        </DataTemplate>
+        <DataTemplate x:Key="datagridCGTemplate">
+            <DataGrid
+                AutoGenerateColumns="False"
+                BorderThickness="0"
+                CanUserAddRows="False"
+                CanUserDeleteRows="False"
+                CanUserReorderColumns="False"
+                CanUserResizeColumns="False"
+                CanUserResizeRows="False"
+                CanUserSortColumns="False"
+                GridLinesVisibility="Vertical"
+                HeadersVisibility="None"
+                IsReadOnly="True"
+                ItemsSource="{Binding Path=Guesses.Collection}"
+                RowHeight="40"
+                SelectionMode="Single"
+                SelectionUnit="Cell">
+                <DataGrid.LayoutTransform>
+                    <TransformGroup>
+                        <RotateTransform Angle="-90" />
+                    </TransformGroup>
+                </DataGrid.LayoutTransform>
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Label
+                                    Height="25"
+                                    Margin="0,0,0,-4"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Bottom"
+                                    Content="{Binding Value}" />
+                                <DataTemplate.Resources>
+                                    <Style TargetType="Label">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding TwoDigitMandatory}" Value="True">
+                                                <Setter Property="ContentStringFormat" Value="{}{0:0.00}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding TwoDigitMandatory}" Value="False">
+                                                <Setter Property="ContentStringFormat" Value="{}{0:0.##}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataTemplate.Resources>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=BackgroundColor, Converter={StaticResource my:EqualityConverter}, ConverterParameter={x:Null}}" Value="False">
+                                <Setter Property="Background" Value="{Binding Path=BackgroundColor}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="LayoutTransform">
+                            <Setter.Value>
+                                <TransformGroup>
+                                    <RotateTransform Angle="90" />
+                                </TransformGroup>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </DataGrid.CellStyle>
+            </DataGrid>
+        </DataTemplate>
+        <DataTemplate x:Key="datagridWeightedCGTemplate">
+            <DataGrid
+                AutoGenerateColumns="False"
+                BorderThickness="0"
+                CanUserAddRows="False"
+                CanUserDeleteRows="False"
+                CanUserReorderColumns="False"
+                CanUserResizeColumns="False"
+                CanUserResizeRows="False"
+                CanUserSortColumns="False"
+                GridLinesVisibility="Vertical"
+                HeadersVisibility="None"
+                IsReadOnly="True"
+                ItemsSource="{Binding Path=GuessesWeighted.Collection}"
+                RowHeight="40"
+                SelectionMode="Single"
+                SelectionUnit="Cell">
+                <DataGrid.LayoutTransform>
+                    <TransformGroup>
+                        <RotateTransform Angle="-90" />
+                    </TransformGroup>
+                </DataGrid.LayoutTransform>
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Label
+                                    Height="25"
+                                    Margin="0,0,0,-4"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Bottom"
+                                    Content="{Binding Value}" />
+                                <DataTemplate.Resources>
+                                    <Style TargetType="Label">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding TwoDigitMandatory}" Value="True">
+                                                <Setter Property="ContentStringFormat" Value="{}{0:0.00}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding TwoDigitMandatory}" Value="False">
+                                                <Setter Property="ContentStringFormat" Value="{}{0:0.##}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataTemplate.Resources>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="LayoutTransform">
+                            <Setter.Value>
+                                <TransformGroup>
+                                    <RotateTransform Angle="90" />
+                                </TransformGroup>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </DataGrid.CellStyle>
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=BackgroundColor, Converter={StaticResource my:EqualityConverter}, ConverterParameter={x:Null}}" Value="False">
+                                <Setter Property="Background" Value="{Binding Path=BackgroundColor}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.RowStyle>
+            </DataGrid>
+        </DataTemplate>
+        <x:Array x:Key="SolutionItems" Type="sys:String">
+            <sys:String>Попереднє навчання членів проектного колективу</sys:String>
+            <sys:String>Узгодження детального переліку вимог до ПЗ із замовником</sys:String>
+            <sys:String>Внесення узгодженого переліку вимог до ПЗ замовника в договір</sys:String>
+            <sys:String>Точне слідування вимогам замовника з узгодженого переліку вимог до ПЗ</sys:String>
+            <sys:String>Попередні дослідження ринку</sys:String>
+            <sys:String>Експертна оцінка програмного проекту досвідченим стороннім консультантом</sys:String>
+            <sys:String>Консультації досвідченого стороннього консультанта</sys:String>
+            <sys:String>Тренінг з вивчення необхідних інструментів розроблення ПЗ</sys:String>
+            <sys:String>Укладання договору страхування</sys:String>
+            <sys:String>Використання &quot;шаблонних&quot; рішень з вдалих попередніх проектів при  управлінні програмним проектом</sys:String>
+            <sys:String>Підготовка документів, які показують важливість даного проекту для досягнення фінансових цілей компанії-розробника</sys:String>
+            <sys:String>Реорганізація  роботи  проектного  колективу  так,  щоб  обов'язки  та  робота  членів колективу перекривали один одного</sys:String>
+            <sys:String>Придбання (замовлення) частини компонент розроблюваного ПЗ</sys:String>
+            <sys:String>Заміна потенційно дефектних компонент розроблюваного ПЗ придбаними компонентами, які гарантують якість виконання роботи</sys:String>
+            <sys:String>Придбання більш продуктивної бази даних</sys:String>
+            <sys:String>Використання генератора програмного коду</sys:String>
+            <sys:String>Реорганізація роботи проектного колективу залежно від рівня труднощів виконання завдань та професійних рівнів розробників</sys:String>
+            <sys:String>Повторне використання придатних компонент ПЗ, які були розроблені для інших програмних проектів</sys:String>
+            <sys:String>Аналіз доцільності розроблення даного ПЗ</sys:String>
+        </x:Array>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="50" />
+            <RowDefinition />
+            <RowDefinition Height="80" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="220" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <ListBox
+            x:Name="risksBox"
+            Grid.Row="2"
+            MinHeight="200"
+            Margin="10"
+            ItemsSource="{Binding Path=CurrentIteration.Risks}"
+            ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+            SelectionMode="Single">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <ContentPresenter Content="{Binding Converter={StaticResource my:RiskToListItemConverter}}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Menu x:Name="menu" Grid.ColumnSpan="2">
+            <MenuItem Header="Файл">
+                <MenuItem Name="OpenItem" Header="Відкрити" />
+                <MenuItem Name="SaveItem" Header="Зберегти" />
+                <MenuItem Name="SaveAsItem" Header="Зберегти як..." />
+                <MenuItem Name="ExitItem" Header="Вихід" />
+            </MenuItem>
+            <MenuItem Name="EditMenu" Header="Редагувати">
+                <MenuItem Name="DeleteRiskItem" Header="Видалити обраний ризик" />
+            </MenuItem>
+            <MenuItem Name="IterationMenu" Header="Ітерація">
+                <MenuItem Name="CreateIteration" Header="Нова ітерація" />
+                <MenuItem Name="OpenPreviousIteration" Header="Попередня ітерація" />
+                <MenuItem Name="OpenNextIteration" Header="Наступна ітерація" />
+                <MenuItem Name="DeleteIteration" Header="Видалити поточну ітерацію" />
+            </MenuItem>
+            <MenuItem
+                Name="AboutItem"
+                Click="AboutItemClicked"
+                Header="Про програму" />
+        </Menu>
+        <Label
+            x:Name="ProjectNameLabel"
+            Grid.Row="1"
+            Width="60"
+            Height="26"
+            Margin="10,5,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Content="Проект:" />
+        <Label
+            x:Name="IterationDateLabel"
+            Grid.Row="1"
+            Width="60"
+            Height="26"
+            Margin="10,24,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Content="Ітерація:" />
+        <Label
+            x:Name="ProjectName"
+            Grid.Row="1"
+            Height="26"
+            Margin="75,5,10,0"
+            VerticalAlignment="Top"
+            Content="{Binding CurrentProject.Name, FallbackValue=''}" />
+        <Label
+            x:Name="IterationDate"
+            Grid.Row="1"
+            Height="26"
+            Margin="75,24,10,0"
+            VerticalAlignment="Top"
+            Content="{Binding CurrentIteration.Date, FallbackValue=''}" />
+        <TabControl
+            x:Name="MainTabs"
+            Grid.Row="1"
+            Grid.RowSpan="3"
+            Grid.Column="1"
+            Margin="10">
+            <TabItem
+                Width="80"
+                Margin="-2,-2,2,0"
+                Header="Ризик">
+                <Grid>
+                    <Grid Name="RiskEditGrid" Visibility="Hidden">
+                        <StackPanel Margin="10" Orientation="Vertical">
+                            <TextBlock
+                                x:Name="CategoryNameText"
+                                VerticalAlignment="Top"
+                                FontSize="14"
+                                Text="{Binding CurrentRisk.CategoryName, FallbackValue=''}"
+                                TextAlignment="Center"
+                                TextTrimming="CharacterEllipsis" />
+                            <TextBlock
+                                x:Name="label1_Copy"
+                                VerticalAlignment="Top"
+                                FontSize="20"
+                                FontWeight="Bold"
+                                Text="{Binding CurrentRisk.RiskName, FallbackValue=Оберіть ризик в меню зліва}"
+                                TextAlignment="Center"
+                                TextWrapping="Wrap" />
+                            <Grid Height="137" Margin="0,10">
+                                <DataGrid
+                                    Name="riskStatDataGrid"
+                                    Width="Auto"
+                                    Height="Auto"
+                                    Margin="0,0,0,0"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Top"
+                                    AutoGenerateColumns="False"
+                                    CanUserAddRows="False"
+                                    CanUserDeleteRows="False"
+                                    CanUserReorderColumns="False"
+                                    CanUserResizeColumns="False"
+                                    CanUserResizeRows="False"
+                                    CanUserSortColumns="False"
+                                    ItemsSource="{Binding Path=ExpertGuesses}"
+                                    SelectionMode="Single"
+                                    SelectionUnit="Cell">
+                                    <DataGrid.LayoutTransform>
+                                        <TransformGroup>
+                                            <RotateTransform Angle="-90" />
+                                            <ScaleTransform ScaleX="1" ScaleY="-1" />
+                                        </TransformGroup>
+                                    </DataGrid.LayoutTransform>
+                                    <DataGrid.ColumnHeaderStyle>
+                                        <Style TargetType="{x:Type DataGridColumnHeader}">
+                                            <Setter Property="LayoutTransform">
+                                                <Setter.Value>
+                                                    <TransformGroup>
+                                                        <RotateTransform Angle="90" />
+                                                        <ScaleTransform ScaleX="-1" ScaleY="1" />
+                                                    </TransformGroup>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                        </Style>
+                                    </DataGrid.ColumnHeaderStyle>
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn
+                                            Binding="{Binding Path=ProbabilityWeight, FallbackValue=0, StringFormat={}{0:0.##}}"
+                                            Header="Вагомість експерта (ймовірності)"
+                                            IsReadOnly="True">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                                    <Setter Property="VerticalAlignment" Value="Bottom" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Binding="{Binding Path=Probability, StringFormat={}{0:0.00}}" Header="Ймовірність ризику">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                                    <Setter Property="VerticalAlignment" Value="Bottom" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn
+                                            Binding="{Binding Path=LossWeight, FallbackValue=0, StringFormat={}{0:0.##}}"
+                                            Header="Вагомість експерта (збитки)"
+                                            IsReadOnly="True">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                                    <Setter Property="VerticalAlignment" Value="Bottom" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                        <DataGridTextColumn Binding="{Binding Path=Loss, StringFormat={}{0:0.00}}" Header="Збитки від ризику">
+                                            <DataGridTextColumn.ElementStyle>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                                    <Setter Property="VerticalAlignment" Value="Bottom" />
+                                                </Style>
+                                            </DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                    <DataGrid.RowHeaderStyle>
+                                        <Style TargetType="{x:Type DataGridRowHeader}">
+                                            <Setter Property="Content" Value="{Binding Path=RowHeader}" />
+                                            <Setter Property="IsEnabled" Value="False" />
+                                            <Setter Property="Background" Value="White" />
+                                            <Setter Property="Width" Value="80" />
+                                            <Setter Property="BorderThickness" Value="1" />
+                                            <Setter Property="BorderBrush" Value="Gray" />
+                                            <Setter Property="Padding" Value="10,0,0,0" />
+                                            <Setter Property="LayoutTransform">
+                                                <Setter.Value>
+                                                    <TransformGroup>
+                                                        <RotateTransform Angle="90" />
+                                                        <ScaleTransform ScaleX="-1" ScaleY="1" />
+                                                    </TransformGroup>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </DataGrid.RowHeaderStyle>
+                                    <DataGrid.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Setter Property="LayoutTransform">
+                                                <Setter.Value>
+                                                    <TransformGroup>
+                                                        <RotateTransform Angle="90" />
+                                                        <ScaleTransform ScaleX="-1" ScaleY="1" />
+                                                    </TransformGroup>
+                                                </Setter.Value>
+                                            </Setter>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsReadOnly" Value="True">
+                                                    <Setter Property="IsEnabled" Value="False" />
+                                                    <Setter Property="Background" Value="Lavender" />
+                                                    <Setter Property="Foreground" Value="Black" />
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGrid.CellStyle>
+                                </DataGrid>
+                            </Grid>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25" />
+                                    <RowDefinition Height="95" />
+                                    <RowDefinition Height="25" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="177" />
+                                    <ColumnDefinition Width="100" />
+                                    <ColumnDefinition Width="9*" />
+                                </Grid.ColumnDefinitions>
+                                <Label
+                                    x:Name="riskDescriptionLabel"
+                                    Grid.Row="1"
+                                    Margin="0,10,0,0"
+                                    Content="Опис ризику:" />
+                                <TextBox
+                                    x:Name="riskDescriptionTextBox"
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Grid.ColumnSpan="2"
+                                    Margin="0,10"
+                                    Text="{Binding Path=CurrentRisk.Description}"
+                                    TextWrapping="Wrap" />
+                                <Label
+                                    x:Name="estimatedCostLabel"
+                                    VerticalContentAlignment="Center"
+                                    Content="Очікувана вартість ризику:" />
+                                <TextBox
+                                    x:Name="riskEstimatedCost"
+                                    Grid.Column="1"
+                                    VerticalContentAlignment="Center"
+                                    AcceptsReturn="False"
+                                    Text="{Binding Path=CurrentRisk.EstimatedCost}"
+                                    TextWrapping="NoWrap" />
+                                <Label
+                                    x:Name="solutionLabel"
+                                    Grid.Row="2"
+                                    Width="177"
+                                    Height="25"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Top"
+                                    VerticalContentAlignment="Center"
+                                    Content="Заходи із зменшення ризику:" />
+                                <ComboBox
+                                    x:Name="solutionComboBox"
+                                    Grid.Row="2"
+                                    Grid.Column="1"
+                                    Grid.ColumnSpan="2"
+                                    Width="240"
+                                    HorizontalAlignment="Left"
+                                    ItemsSource="{StaticResource SolutionItems}"
+                                    SelectedIndex="{Binding Path=CurrentRisk.Solution.SolutionID, TargetNullValue=-1}"
+                                    ToolTip="{Binding ElementName=solutionComboBox, Path=SelectedValue}" />
+                                <Button
+                                    x:Name="cancelSolution"
+                                    Grid.Row="2"
+                                    Grid.Column="2"
+                                    Width="120"
+                                    Margin="145,0,0,0"
+                                    HorizontalAlignment="Left"
+                                    Command="{Binding CancelSolution}"
+                                    Content="Скасувати заходи" />
+                                <Label
+                                    Grid.Row="2"
+                                    Grid.Column="2"
+                                    Width="136"
+                                    Margin="270,0,0,0"
+                                    HorizontalAlignment="Left"
+                                    Content="✓ Заходи застосовано"
+                                    Foreground="Green"
+                                    Style="{StaticResource solutionApproved}" />
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock
+                        x:Name="PleaseSelectRiskText"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontSize="30"
+                        Foreground="Gray"
+                        Text="Будь ласка, оберіть ризик в меню зліва"
+                        TextAlignment="Center"
+                        TextWrapping="Wrap" />
+                </Grid>
+            </TabItem>
+            <TabItem
+                Width="120"
+                Margin="-3,-2,3,0"
+                Header="Звідна таблиця">
+                <TabControl x:Name="resultTabs">
+                    <TabItem
+                        Width="170"
+                        Margin="-3,-2,3,0"
+                        Header="Потенційні ризикові події">
+                        <DataGrid
+                            Name="riskEvents"
+                            Margin="10"
+                            AutoGenerateColumns="False"
+                            BorderThickness="0"
+                            CanUserAddRows="False"
+                            CanUserDeleteRows="False"
+                            CanUserReorderColumns="False"
+                            CanUserResizeColumns="False"
+                            CanUserResizeRows="False"
+                            CanUserSortColumns="False"
+                            IsReadOnly="True"
+                            ItemsSource="{Binding Path=RiskEventTable}"
+                            SelectionMode="Single"
+                            SelectionUnit="Cell">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Width="50" Binding="{Binding Path=RowHeader}">
+                                    <DataGridTextColumn.CellStyle>
+                                        <Style TargetType="DataGridCell">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsBold}" Value="True">
+                                                    <Setter Property="TextBlock.TextAlignment" Value="Center" />
+                                                    <Setter Property="VerticalAlignment" Value="Bottom" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=IsBold}" Value="False">
+                                                    <Setter Property="TextBlock.TextAlignment" Value="Right" />
+                                                    <Setter Property="VerticalAlignment" Value="Bottom" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGridTextColumn.CellStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Path=Name}" />
+                                <DataGridTextColumn
+                                    MinWidth="50"
+                                    Binding="{Binding Path=Number}"
+                                    CellStyle="{StaticResource datagridCellBottomAlign}" />
+                                <DataGridTextColumn
+                                    MinWidth="50"
+                                    Binding="{Binding Path=Percent, StringFormat={}{0:0.00%}}"
+                                    CellStyle="{StaticResource datagridCellBottomAlign}" />
+                            </DataGrid.Columns>
+                            <DataGrid.RowStyle>
+                                <Style TargetType="{x:Type DataGridRow}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsBold}" Value="True">
+                                            <Setter Property="FontWeight" Value="Bold" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.RowStyle>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem
+                        Width="120"
+                        Margin="-2,-2,2,0"
+                        Header="Ймовірності">
+                        <DataGrid
+                            Name="resultDataGrid"
+                            Margin="10"
+                            VerticalContentAlignment="Bottom"
+                            AutoGenerateColumns="False"
+                            BorderThickness="0"
+                            CanUserAddRows="False"
+                            CanUserDeleteRows="False"
+                            CanUserReorderColumns="False"
+                            CanUserResizeColumns="False"
+                            CanUserResizeRows="False"
+                            CanUserSortColumns="False"
+                            IsReadOnly="True"
+                            ItemsSource="{Binding Path=ProbabilityTable}"
+                            SelectionMode="Single"
+                            SelectionUnit="Cell">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Path=Number, FallbackValue=''}" Header="Номер">
+                                    <DataGridTextColumn.CellStyle>
+                                        <Style BasedOn="{StaticResource datagridRightAlign}" TargetType="{x:Type DataGridCell}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsBold}" Value="True">
+                                                    <Setter Property="TextBlock.TextAlignment" Value="Center" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGridTextColumn.CellStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn
+                                    Binding="{Binding Path=Name}"
+                                    CellStyle="{StaticResource datagridLeftAlign}"
+                                    Header="Ризик" />
+                                <DataGridTemplateColumn
+                                    Width="403"
+                                    CellTemplateSelector="{StaticResource CGTemplateSelector}"
+                                    Header="" />
+                                <DataGridTextColumn
+                                    MinWidth="50"
+                                    Binding="{Binding Path=Average, StringFormat={}{0:0.00}}"
+                                    Header="Σ">
+                                    <DataGridTextColumn.CellStyle>
+                                        <Style TargetType="{x:Type DataGridCell}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=AverageColor, Converter={StaticResource my:EqualityConverter}, ConverterParameter={x:Null}}" Value="False">
+                                                    <Setter Property="Background" Value="{Binding Path=AverageColor}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=AverageTextWhite}" Value="True">
+                                                    <Setter Property="Foreground" Value="White" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGridTextColumn.CellStyle>
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style BasedOn="{StaticResource datagridBottomAlign}" TargetType="{x:Type TextBlock}" />
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTemplateColumn
+                                    Width="403"
+                                    CellTemplateSelector="{StaticResource CGWTemplateSelector}"
+                                    Header="" />
+                                <DataGridTextColumn Binding="{Binding Path=AverageWeighted, StringFormat={}{0:0.000}}" Header="Середнє">
+                                    <DataGridTextColumn.CellStyle>
+                                        <Style TargetType="{x:Type DataGridCell}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=AverageWeightedColor, Converter={StaticResource my:EqualityConverter}, ConverterParameter={x:Null}}" Value="False">
+                                                    <Setter Property="Background" Value="{Binding Path=AverageWeightedColor}" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=AverageWeightedTextWhite}" Value="True">
+                                                    <Setter Property="Foreground" Value="White" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGridTextColumn.CellStyle>
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style BasedOn="{StaticResource datagridBottomAlign}" TargetType="{x:Type TextBlock}" />
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Binding="{Binding Path=ProbabilityGrade}" Header="Ймовірність виникнення">
+                                    <DataGridTextColumn.CellStyle>
+                                        <Style TargetType="{x:Type DataGridCell}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=GradeColor, Converter={StaticResource my:EqualityConverter}, ConverterParameter={x:Null}}" Value="False">
+                                                    <Setter Property="Background" Value="{Binding Path=GradeColor}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </DataGridTextColumn.CellStyle>
+                                    <DataGridTextColumn.ElementStyle>
+                                        <Style BasedOn="{StaticResource datagridBottomAlign}" TargetType="{x:Type TextBlock}" />
+                                    </DataGridTextColumn.ElementStyle>
+                                </DataGridTextColumn>
+                            </DataGrid.Columns>
+                            <DataGrid.RowStyle>
+                                <Style TargetType="{x:Type DataGridRow}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=IsBold}" Value="True">
+                                            <Setter Property="FontWeight" Value="Bold" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGrid.RowStyle>
+                            <DataGrid.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Setter Property="BorderThickness" Value="0" />
+                                    <Setter Property="TextBlock.TextAlignment" Value="Center" />
+                                </Style>
+                            </DataGrid.CellStyle>
+                            <DataGrid.ColumnHeaderStyle>
+                                <Style TargetType="DataGridColumnHeader">
+                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                </Style>
+                            </DataGrid.ColumnHeaderStyle>
+                        </DataGrid>
+                    </TabItem>
+                    <TabItem
+                        Width="100"
+                        Margin="-3,-2,3,0"
+                        Header="Збитки">
+                        <Grid>
+                            <DataGrid
+                                Name="lossDataGrid"
+                                Margin="10,10,10,70"
+                                AutoGenerateColumns="False"
+                                BorderThickness="0"
+                                CanUserAddRows="False"
+                                CanUserDeleteRows="False"
+                                CanUserReorderColumns="False"
+                                CanUserResizeColumns="False"
+                                CanUserResizeRows="False"
+                                CanUserSortColumns="False"
+                                IsReadOnly="True"
+                                ItemsSource="{Binding Path=LossTable}"
+                                SelectionMode="Single"
+                                SelectionUnit="Cell">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding Path=Number, FallbackValue=''}" Header="Номер">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style BasedOn="{StaticResource datagridRightAlign}" TargetType="{x:Type DataGridCell}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=IsBold}" Value="True">
+                                                        <Setter Property="TextBlock.TextAlignment" Value="Center" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn
+                                        Binding="{Binding Path=Name}"
+                                        CellStyle="{StaticResource datagridLeftAlign}"
+                                        Header="Ризик" />
+                                    <DataGridTemplateColumn Header="Вартість">
+                                        <DataGridTemplateColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=AverageColor, Converter={StaticResource my:EqualityConverter}, ConverterParameter={x:Null}}" Value="False">
+                                                        <Setter Property="Background" Value="{Binding Path=AverageColor}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Path=IsBold}" Value="True">
+                                                        <Setter Property="Background" Value="#ff99cc" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTemplateColumn.CellStyle>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Label
+                                                    Height="25"
+                                                    Margin="0,0,0,-4"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Bottom"
+                                                    Content="{Binding Path=Cost, FallbackValue=''}" />
+                                                <DataTemplate.Resources>
+                                                    <Style TargetType="Label">
+                                                        <Setter Property="ContentStringFormat" Value="{}{0:0.00}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Path=IsBold}" Value="True">
+                                                                <Setter Property="ContentStringFormat" Value="{}{0:0.0}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </DataTemplate.Resources>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn
+                                        Width="403"
+                                        CellTemplateSelector="{StaticResource CGLTemplateSelector}"
+                                        Header="" />
+                                    <DataGridTextColumn Binding="{Binding Path=Average, StringFormat={}{0:0.00}}" Header="Σ">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="{x:Type DataGridCell}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=AverageColor, Converter={StaticResource my:EqualityConverter}, ConverterParameter={x:Null}}" Value="False">
+                                                        <Setter Property="Background" Value="{Binding Path=AverageColor}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Path=AverageTextWhite}" Value="True">
+                                                        <Setter Property="Foreground" Value="White" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style BasedOn="{StaticResource datagridBottomAlign}" TargetType="{x:Type TextBlock}" />
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTemplateColumn
+                                        Width="403"
+                                        CellTemplateSelector="{StaticResource CGLWTemplateSelector}"
+                                        Header="" />
+                                    <DataGridTextColumn Binding="{Binding Path=AdditionalCost, StringFormat={}{0:0.00}}" Header="Додаткова вартість, тис. грн.">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="{x:Type DataGridCell}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=AdditionalCostColor, Converter={StaticResource my:EqualityConverter}, ConverterParameter={x:Null}}" Value="False">
+                                                        <Setter Property="Background" Value="{Binding Path=AdditionalCostColor}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Path=AdditionalCostTextWhite}" Value="True">
+                                                        <Setter Property="Foreground" Value="White" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style BasedOn="{StaticResource datagridBottomAlign}" TargetType="{x:Type TextBlock}" />
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding Path=FinalCost, StringFormat={}{0:0.00}}" Header="Кінцева вартість, тис. грн.">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="{x:Type DataGridCell}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=AdditionalCostColor, Converter={StaticResource my:EqualityConverter}, ConverterParameter={x:Null}}" Value="False">
+                                                        <Setter Property="Background" Value="{Binding Path=AdditionalCostColor}" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Path=AdditionalCostTextWhite}" Value="True">
+                                                        <Setter Property="Foreground" Value="White" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style BasedOn="{StaticResource datagridBottomAlign}" TargetType="{x:Type TextBlock}" />
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                    <DataGridTextColumn Binding="{Binding Path=MinMax}" />
+                                    <DataGridTextColumn Binding="{Binding Path=MinMaxValue, TargetNullValue=''}" />
+                                    <DataGridTextColumn Binding="{Binding Path=RiskPriority}" Header="Пріоритет">
+                                        <DataGridTextColumn.CellStyle>
+                                            <Style TargetType="{x:Type DataGridCell}">
+                                                <Setter Property="TextBlock.TextAlignment" Value="Left" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=PriorityColor, Converter={StaticResource my:EqualityConverter}, ConverterParameter={x:Null}}" Value="False">
+                                                        <Setter Property="Background" Value="{Binding Path=PriorityColor}" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTextColumn.CellStyle>
+                                        <DataGridTextColumn.ElementStyle>
+                                            <Style BasedOn="{StaticResource datagridBottomAlign}" TargetType="{x:Type TextBlock}" />
+                                        </DataGridTextColumn.ElementStyle>
+                                    </DataGridTextColumn>
+                                </DataGrid.Columns>
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="{x:Type DataGridRow}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Path=IsBold}" Value="True">
+                                                <Setter Property="FontWeight" Value="Bold" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.RowStyle>
+                                <DataGrid.CellStyle>
+                                    <Style TargetType="DataGridCell">
+                                        <Setter Property="BorderThickness" Value="0" />
+                                        <Setter Property="TextBlock.TextAlignment" Value="Center" />
+                                    </Style>
+                                </DataGrid.CellStyle>
+                                <DataGrid.ColumnHeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    </Style>
+                                </DataGrid.ColumnHeaderStyle>
+                            </DataGrid>
+                            <WrapPanel
+                                Height="55"
+                                Margin="10,0,10,10"
+                                VerticalAlignment="Bottom">
+                                <Label x:Name="MaxLabel" Content="Max =" />
+                                <Label x:Name="MaxLabelData" Content="{Binding Path=MaxData, TargetNullValue='', StringFormat={}{0:0.00}}" />
+                                <Label x:Name="MinLabel" Content="Min =" />
+                                <Label x:Name="MinLabelData" Content="{Binding Path=MinData, TargetNullValue='', StringFormat={}{0:0.00}}" />
+                                <Label x:Name="MprLabel" Content="mpr =" />
+                                <Label x:Name="MprLabelData" Content="{Binding Path=MprData, TargetNullValue='', StringFormat={}{0:0.00}}" />
+                                <Label x:Name="FirstIntervalData" Content="{Binding Path=FirstIntervalData, TargetNullValue=''}" />
+                                <Label x:Name="SecondIntervalData" Content="{Binding Path=SecondIntervalData, TargetNullValue=''}" />
+                                <Label x:Name="ThirdIntervalData" Content="{Binding Path=ThirdIntervalData, TargetNullValue=''}" />
+                            </WrapPanel>
+                        </Grid>
+                    </TabItem>
+                    <TabItem
+                        Width="100"
+                        Margin="-3,-2,3,0"
+                        Header="Проект">
+                        <Grid>
+                            <DataGrid
+                                Name="projectDataGrid"
+                                Height="85"
+                                Margin="10,10,10,0"
+                                VerticalAlignment="Top"
+                                AutoGenerateColumns="False"
+                                BorderThickness="0"
+                                CanUserAddRows="False"
+                                CanUserDeleteRows="False"
+                                CanUserReorderColumns="False"
+                                CanUserResizeColumns="False"
+                                CanUserResizeRows="False"
+                                CanUserSortColumns="False"
+                                IsReadOnly="True"
+                                ItemsSource="{Binding Path=ProjectInfoTable}"
+                                SelectionMode="Single"
+                                SelectionUnit="Cell">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Binding="{Binding Path=Text, TargetNullValue=''}" CellStyle="{StaticResource datagridCellBottomAlign}" />
+                                    <DataGridTemplateColumn>
+                                        <DataGridTemplateColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding OneDigit}" Value="False">
+                                                        <Setter Property="Background" Value="#ccffff" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding OneDigit}" Value="True">
+                                                        <Setter Property="Background" Value="#ccffcc" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTemplateColumn.CellStyle>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Label
+                                                    Height="25"
+                                                    Margin="0,0,0,-4"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Bottom"
+                                                    Content="{Binding Overal}" />
+                                                <DataTemplate.Resources>
+                                                    <Style TargetType="Label">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding OneDigit}" Value="False">
+                                                                <Setter Property="ContentStringFormat" Value="{}{0:0.00}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding OneDigit}" Value="True">
+                                                                <Setter Property="ContentStringFormat" Value="{}{0:0.0}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </DataTemplate.Resources>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="1">
+                                        <DataGridTemplateColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding OneDigit}" Value="False">
+                                                        <Setter Property="Background" Value="#ccffff" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding OneDigit}" Value="True">
+                                                        <Setter Property="Background" Value="#ff99cc" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTemplateColumn.CellStyle>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Label
+                                                    Height="25"
+                                                    Margin="0,0,0,-4"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Bottom"
+                                                    Content="{Binding First}" />
+                                                <DataTemplate.Resources>
+                                                    <Style TargetType="Label">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding OneDigit}" Value="False">
+                                                                <Setter Property="ContentStringFormat" Value="{}{0:0.00}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding OneDigit}" Value="True">
+                                                                <Setter Property="ContentStringFormat" Value="{}{0:0.0}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </DataTemplate.Resources>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="2">
+                                        <DataGridTemplateColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding OneDigit}" Value="False">
+                                                        <Setter Property="Background" Value="#ccffff" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding OneDigit}" Value="True">
+                                                        <Setter Property="Background" Value="#ff99cc" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTemplateColumn.CellStyle>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Label
+                                                    Height="25"
+                                                    Margin="0,0,0,-4"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Bottom"
+                                                    Content="{Binding Second}" />
+                                                <DataTemplate.Resources>
+                                                    <Style TargetType="Label">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding OneDigit}" Value="False">
+                                                                <Setter Property="ContentStringFormat" Value="{}{0:0.00}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding OneDigit}" Value="True">
+                                                                <Setter Property="ContentStringFormat" Value="{}{0:0.0}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </DataTemplate.Resources>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="3">
+                                        <DataGridTemplateColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding OneDigit}" Value="False">
+                                                        <Setter Property="Background" Value="#ccffff" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding OneDigit}" Value="True">
+                                                        <Setter Property="Background" Value="#ff99cc" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTemplateColumn.CellStyle>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Label
+                                                    Height="25"
+                                                    Margin="0,0,0,-4"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Bottom"
+                                                    Content="{Binding Third}" />
+                                                <DataTemplate.Resources>
+                                                    <Style TargetType="Label">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding OneDigit}" Value="False">
+                                                                <Setter Property="ContentStringFormat" Value="{}{0:0.00}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding OneDigit}" Value="True">
+                                                                <Setter Property="ContentStringFormat" Value="{}{0:0.0}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </DataTemplate.Resources>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn Header="4">
+                                        <DataGridTemplateColumn.CellStyle>
+                                            <Style TargetType="DataGridCell">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding OneDigit}" Value="False">
+                                                        <Setter Property="Background" Value="#ccffff" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding OneDigit}" Value="True">
+                                                        <Setter Property="Background" Value="#ff99cc" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </DataGridTemplateColumn.CellStyle>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Label
+                                                    Height="25"
+                                                    Margin="0,0,0,-4"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Bottom"
+                                                    Content="{Binding Fourth}" />
+                                                <DataTemplate.Resources>
+                                                    <Style TargetType="Label">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding OneDigit}" Value="False">
+                                                                <Setter Property="ContentStringFormat" Value="{}{0:0.00}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding OneDigit}" Value="True">
+                                                                <Setter Property="ContentStringFormat" Value="{}{0:0.0}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </DataTemplate.Resources>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTemplateColumn>
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock VerticalAlignment="Bottom" Text="тис. грн." />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn
+                                        Binding="{Binding CostCoef}"
+                                        CellStyle="{StaticResource datagridCellBottomAlign}"
+                                        Header="Коефіцієнт вартості" />
+                                </DataGrid.Columns>
+                                <DataGrid.ColumnHeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                    </Style>
+                                </DataGrid.ColumnHeaderStyle>
+                            </DataGrid>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+            </TabItem>
+        </TabControl>
+        <Button
+            x:Name="addRiskButton"
+            Grid.Row="3"
+            Width="65"
+            Height="60"
+            Margin="145,10,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top">
+            <TextBlock HorizontalAlignment="Center" TextAlignment="Center">
+                Додати<LineBreak />
+                ризик</TextBlock>
+        </Button>
+        <ComboBox
+            x:Name="categoryComboBox"
+            Grid.Row="3"
+            Width="130"
+            Height="25"
+            Margin="10,10,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top" />
+        <ComboBox
+            x:Name="riskComboBox"
+            Grid.Row="3"
+            Width="130                   "
+            Height="25"
+            Margin="10,45,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top" />
+    </Grid>
+</Window>
